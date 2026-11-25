@@ -97,7 +97,7 @@ export function buildCountryResidence(mats, sectionClipPlane) {
   // 2. Calibrated 1:1 Original Blueprint Overlay Plane
   // ---------------------------------------------------------------------------
   const texLoader = new THREE.TextureLoader();
-  const bpTex = texLoader.load('/floorplan.jpeg');
+  const bpTex = texLoader.load('./floorplan.jpeg');
   bpTex.colorSpace = THREE.SRGBColorSpace;
   bpTex.anisotropy = 8;
   const bpMat = new THREE.MeshBasicMaterial({

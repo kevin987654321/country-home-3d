@@ -723,7 +723,7 @@ const MM_CROP = { x: 32, y: 162, w: 660, h: 708 };
 const BP_SCALE_CM_PER_PX = 823.0 / 597.0;
 
 const bpImg = new Image();
-bpImg.src = '/floorplan.jpeg';
+bpImg.src = './floorplan.jpeg';
 let bpImgLoaded = false;
 bpImg.onload = () => {
   bpImgLoaded = true;

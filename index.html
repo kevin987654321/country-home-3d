@@ -5,7 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>純白鄉村風全室精細 3D 建築模型｜1:1 平面圖還原</title>
   <meta name="description" content="依據原始平面圖 1:1 精確比例建立之純白鄉村風三房兩廳雙衛浴 3D 精細室內建築模型，支援環繞檢視、正交疊圖對照、第一人稱漫遊、門窗互動與光影切換。" />
-  <link rel="stylesheet" href="/src/style.css" />
+  <link rel="stylesheet" href="./src/style.css" />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.187.0/build/three.module.js",
+        "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.187.0/examples/jsm/"
+      }
+    }
+  </script>
 </head>
 <body>
   <div id="canvas-container" aria-label="3D 室內建築檢視畫布"></div>
@@ -95,9 +103,6 @@
       <button id="btn-snapshot" class="action-chip">
         <span>匯出高畫質渲染圖</span>
       </button>
-      <a id="btn-download-zip" href="/country-home-3d.zip" download="country-home-3d.zip" class="action-chip" style="text-decoration: none;">
-        <span>下載完整專案原始碼 (.zip)</span>
-      </a>
     </section>
 
     <!-- 即時 2D 平面導覽小地圖 -->
@@ -106,7 +111,7 @@
         <span>即時空間定位圖（點擊快速移鏡）</span>
       </div>
       <div id="minimap-wrap" class="minimap-wrap" title="點擊平面圖任意房間立即聚焦">
-        <img src="/floorplan.jpeg" alt="原始平面配置縮圖" class="minimap-img" draggable="false" />
+        <img src="./floorplan.jpeg" alt="原始平面配置縮圖" class="minimap-img" draggable="false" />
         <canvas id="minimap-canvas" width="220" height="236"></canvas>
       </div>
     </section>
@@ -143,6 +148,6 @@
     <span>左鍵拖曳旋轉</span> · <span>右鍵平移</span> · <span>滾輪縮放</span> · <span>雙擊任意家具聚焦</span> · <span>點擊門扇互動開關</span>
   </div>
 
-  <script type="module" src="/src/main.js"></script>
+  <script type="module" src="./src/main.js"></script>
 </body>
 </html>
