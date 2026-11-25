@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>純白鄉村風全室精細 3D 建築模型｜1:1 平面圖還原</title>
+  <meta name="description" content="依據原始平面圖 1:1 精確比例建立之純白鄉村風三房兩廳雙衛浴 3D 精細室內建築模型，支援環繞檢視、正交疊圖對照、第一人稱漫遊、門窗互動與光影切換。" />
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <div id="canvas-container" aria-label="3D 室內建築檢視畫布"></div>
+
+  <!-- 載入畫面 -->
+  <div id="loading-screen">
+    <div class="loader-inner">
+      <p class="loader-subtitle">ARCHITECTURAL 1:1 SCALE MODEL</p>
+      <h1 class="loader-title">純白鄉村風・全室精細建模</h1>
+      <div class="loader-bar-track">
+        <div id="loader-bar-fill" class="loader-bar-fill"></div>
+      </div>
+      <p id="loader-status" class="loader-status">正在生成高解析度木紋、企口線板與全室家具組件…</p>
+    </div>
+  </div>
+
+  <!-- 左上標題與空間資訊面板 -->
+  <header id="brand-header" class="glass-panel">
+    <div class="header-top">
+      <div>
+        <p class="eyebrow">WHITE COUNTRY RESIDENCE · 853 × 820 CM</p>
+        <h2 class="brand-title">純白鄉村風精細室內模型</h2>
+      </div>
+      <button id="btn-toggle-ui" class="icon-btn" title="收合/展開控制介面 (H)" aria-label="收合或展開控制介面">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M4 12h16M4 6h16M4 18h16" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <p id="active-zone-desc" class="zone-desc">
+      全室鳥瞰視角｜3 房 2 廳 2 衛 1 廚＋工作陽台，嚴格依照平面圖尺寸（1 cm 精度）與開門方向建模。
+    </p>
+  </header>
+
+  <!-- 右上建築檢視控制台 -->
+  <aside id="control-sidebar" class="glass-panel" aria-label="建築檢視控制面板">
+    <section class="ctrl-section">
+      <div class="section-label">視角模式</div>
+      <div class="segmented-group" role="group" aria-label="視角模式選擇">
+        <button id="mode-orbit" class="seg-btn active" data-mode="orbit">3D 透視</button>
+        <button id="mode-ortho" class="seg-btn" data-mode="ortho">正交俯視</button>
+        <button id="mode-walk" class="seg-btn" data-mode="walk">漫遊視角</button>
+      </div>
+    </section>
+
+    <section class="ctrl-section">
+      <div class="section-label">自然光與室內燈光氛圍</div>
+      <div class="segmented-group" role="group" aria-label="光影氛圍選擇">
+        <button id="light-morning" class="seg-btn active" data-light="morning">晨光純白</button>
+        <button id="light-afternoon" class="seg-btn" data-light="afternoon">午後暖陽</button>
+        <button id="light-evening" class="seg-btn" data-light="evening">靜謐夜燈</button>
+      </div>
+    </section>
+
+    <section class="ctrl-section">
+      <div class="slider-header">
+        <label for="slider-wall-height">手動剖面高度</label>
+        <span id="val-wall-height" class="mono-val">全高 285 cm</span>
+      </div>
+      <input id="slider-wall-height" type="range" min="35" max="285" value="285" step="5" />
+      <div class="toggle-row">
+        <label class="check-label">
+          <input id="chk-auto-cutaway" type="checkbox" checked />
+          <span>自動平滑隱藏正對遮擋之外牆</span>
+        </label>
+      </div>
+    </section>
+
+    <section class="ctrl-section">
+      <div class="slider-header">
+        <label for="slider-blueprint">原始平面圖 1:1 疊圖對照</label>
+        <span id="val-blueprint" class="mono-val">0%</span>
+      </div>
+      <input id="slider-blueprint" type="range" min="0" max="100" value="0" step="1" />
+    </section>
+
+    <section class="ctrl-section toggles-grid">
+      <button id="btn-doors-toggle" class="action-chip" data-state="blueprint">
+        <span class="chip-dot active"></span>門片：依平面圖半開
+      </button>
+      <button id="btn-dims-toggle" class="action-chip">
+        <span class="chip-dot"></span>3D 尺寸標註線
+      </button>
+      <button id="btn-wireframe-ceiling" class="action-chip">
+        <span class="chip-dot"></span>天花板與主燈結構
+      </button>
+      <button id="btn-snapshot" class="action-chip">
+        <span>匯出高畫質渲染圖</span>
+      </button>
+      <a id="btn-download-zip" href="/country-home-3d.zip" download="country-home-3d.zip" class="action-chip" style="text-decoration: none;">
+        <span>下載完整專案原始碼 (.zip)</span>
+      </a>
+    </section>
+
+    <!-- 即時 2D 平面導覽小地圖 -->
+    <section class="ctrl-section minimap-section">
+      <div class="slider-header">
+        <span>即時空間定位圖（點擊快速移鏡）</span>
+      </div>
+      <div id="minimap-wrap" class="minimap-wrap" title="點擊平面圖任意房間立即聚焦">
+        <img src="/floorplan.jpeg" alt="原始平面配置縮圖" class="minimap-img" draggable="false" />
+        <canvas id="minimap-canvas" width="220" height="236"></canvas>
+      </div>
+    </section>
+  </aside>
+
+  <!-- 底部十大空間快速導覽列 -->
+  <nav id="room-nav" class="glass-panel" aria-label="各空間快速運鏡導覽">
+    <button class="room-pill active" data-room="overview">全景鳥瞰</button>
+    <button class="room-pill" data-room="seDesign">右下書房（設計圖視角）</button>
+    <button class="room-pill" data-room="bedSE">東南次臥全景</button>
+    <button class="room-pill" data-room="master">主臥室套房</button>
+    <button class="room-pill" data-room="living">核心大餐桌＆閱讀角</button>
+    <button class="room-pill" data-room="kitchen">鄉村風廚房＆吧台</button>
+    <button class="room-pill" data-room="foyer">玄關端景櫃</button>
+    <button class="room-pill" data-room="bedSW">西南次臥</button>
+    <button class="room-pill" data-room="masterBath">主臥浴缸衛浴</button>
+    <button class="room-pill" data-room="guestBath">客用乾濕分離衛浴</button>
+    <button class="room-pill" data-room="balcony">工作陽台</button>
+  </nav>
+
+  <!-- 物件精細檢視浮動提示 (Hover / Click Inspector) -->
+  <div id="inspector-tooltip" class="inspector-tooltip hidden" role="status" aria-live="polite">
+    <div id="insp-title" class="insp-title"></div>
+    <div id="insp-meta" class="insp-meta"></div>
+  </div>
+
+  <!-- 第一人稱漫遊提示條 -->
+  <div id="walk-hint" class="walk-hint hidden">
+    <span><strong>第一人稱漫遊模式</strong>：拖曳滑鼠環視四周 · 使用 <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 或方向鍵行走 · 點擊門扇可開關門 · 按 <kbd>ESC</kbd> 或切換上方視角返回環繞模式</span>
+  </div>
+
+  <!-- 左下操作捷徑微提示 -->
+  <div id="controls-legend" class="controls-legend">
+    <span>左鍵拖曳旋轉</span> · <span>右鍵平移</span> · <span>滾輪縮放</span> · <span>雙擊任意家具聚焦</span> · <span>點擊門扇互動開關</span>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
