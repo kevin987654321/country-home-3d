@@ -2,9 +2,12 @@ import * as THREE from 'three';
 import {
   cm,
   tagItem,
+  createRoundedSlab,
   createCountryDoor,
   createCountryWindow,
   createFramedArt,
+  createWallSwitchPanel,
+  createFloorDoorstop,
 } from './primitives.js';
 import {
   createEntrywayShoeCabinet,
@@ -211,7 +214,7 @@ export function buildCountryResidence(mats, sectionClipPlane) {
   addWall(546, 567, 556, 803, 0, 285, null);
 
   // ---------------------------------------------------------------------------
-  // 4. Wainscoting & Baseboards (Attached to their exact host wall facade!)
+  // 4. Multi-Tier Wainscoting, Baseboards, Toggle Switches & Doorstops
   // ---------------------------------------------------------------------------
   function addWainscoting(x1, z1, x2, z2, faceNormalX, faceNormalZ, facadeKey = null) {
     const isHoriz = Math.abs(x2 - x1) > Math.abs(z2 - z1);
@@ -225,40 +228,92 @@ export function buildCountryResidence(mats, sectionClipPlane) {
     const cz = cm((z1 + z2) / 2) + faceNormalZ * cm(0.7);
     panel.position.set(cx, h / 2, cz);
 
+    // 2-tier country dado chair rail (lower cove necking + upper bullnose cap)
+    const neck = new THREE.Mesh(
+      new THREE.BoxGeometry(isHoriz ? len : cm(2.2), cm(2.0), isHoriz ? cm(2.2) : len),
+      mats.whiteTrim
+    );
+    neck.position.set(cx + faceNormalX * cm(0.45), h + cm(1.0), cz + faceNormalZ * cm(0.45));
     const cap = new THREE.Mesh(
-      new THREE.BoxGeometry(isHoriz ? len : cm(2.8), cm(3.8), isHoriz ? cm(2.8) : len),
+      new THREE.BoxGeometry(isHoriz ? len : cm(3.4), cm(2.4), isHoriz ? cm(3.4) : len),
       mats.whiteTrim
     );
-    cap.position.set(cx + faceNormalX * cm(0.6), h + cm(1.9), cz + faceNormalZ * cm(0.6));
+    cap.position.set(cx + faceNormalX * cm(0.85), h + cm(3.1), cz + faceNormalZ * cm(0.85));
+
+    // Stepped ogee baseboard + floor shoe molding
     const base = new THREE.Mesh(
-      new THREE.BoxGeometry(isHoriz ? len : cm(2.4), cm(12), isHoriz ? cm(2.4) : len),
+      new THREE.BoxGeometry(isHoriz ? len : cm(2.4), cm(12.5), isHoriz ? cm(2.4) : len),
       mats.whiteTrim
     );
-    base.position.set(cx + faceNormalX * cm(0.4), cm(6), cz + faceNormalZ * cm(0.4));
+    base.position.set(cx + faceNormalX * cm(0.42), cm(6.25), cz + faceNormalZ * cm(0.42));
+    const shoe = new THREE.Mesh(
+      new THREE.BoxGeometry(isHoriz ? len : cm(3.1), cm(1.8), isHoriz ? cm(3.1) : len),
+      mats.whiteTrim
+    );
+    shoe.position.set(cx + faceNormalX * cm(0.75), cm(0.9), cz + faceNormalZ * cm(0.75));
 
     const parent = facadeKey && facades[facadeKey] ? facades[facadeKey].group : interiorArchGroup;
-    for (const m of [panel, cap, base]) {
+    for (const m of [panel, neck, cap, base, shoe]) {
       m.receiveShadow = true;
       m.castShadow = true;
       parent.add(m);
     }
   }
 
-  addWainscoting(516, 269, 838, 269, 0, 1, null); // Living North interior wall
-  addWainscoting(396, 557, 750, 557, 0, -1, null); // Living South interior wall
-  addWainscoting(838, 490, 838, 556, -1, 0, 'E'); // Living East pier -> grouped with 'E'!
-  addWainscoting(15, 376, 15, 392, 1, 0, 'W'); // Foyer West wall -> grouped with 'W'!
-  addWainscoting(15, 265, 110, 265, 0, 1, 'N'); // Foyer North wall -> grouped with 'N'!
-  addWainscoting(581, 259, 838, 259, 0, -1, null); // Master South interior wall
-  addWainscoting(428, 15, 838, 15, 0, 1, 'N'); // Master North exterior wall -> grouped with 'N'!
-  addWainscoting(264, 569, 264, 742, 1, 0, null); // Bed 2 West interior wall
+  addWainscoting(516, 269, 838, 269, 0, 1, null);
+  addWainscoting(396, 557, 750, 557, 0, -1, null);
+  addWainscoting(838, 490, 838, 556, -1, 0, 'E');
+  addWainscoting(15, 376, 15, 392, 1, 0, 'W');
+  addWainscoting(15, 265, 110, 265, 0, 1, 'N');
+  addWainscoting(581, 259, 838, 259, 0, -1, null);
+  addWainscoting(428, 15, 838, 15, 0, 1, 'N');
+  addWainscoting(264, 569, 264, 742, 1, 0, null);
 
-  // SE Bedroom clean minimalist white baseboard along West & North inner walls
+  // Balcony South Parapet Stone Coping Cap & Stainless Floor Drain
+  const parapetCap = createRoundedSlab(cm(243), cm(16), cm(3.0), cm(0.8), mats.marbleTop, cm(0.35));
+  parapetCap.position.set(cm(134.5), cm(112), cm(809));
+  facades.S.group.add(parapetCap);
+  const balcDrain = new THREE.Mesh(new THREE.CylinderGeometry(cm(4.5), cm(4.5), cm(0.4), 16), mats.stainlessSteel);
+  balcDrain.position.set(cm(86), -cm(1.3), cm(785));
+  plinthGroup.add(balcDrain);
+
+  // Entryway Woven Jute & Linen Bordered Welcome Mat
+  const welcomeMat = createRoundedSlab(cm(56), cm(86), cm(1.1), cm(3), mats.juteRug, cm(0.3));
+  welcomeMat.position.set(cm(52), cm(0.1), cm(326));
+  const welcomeBorder = createRoundedSlab(cm(58), cm(88), cm(0.6), cm(3.2), mats.oatmealLinen, cm(0.2));
+  welcomeBorder.position.set(cm(52), cm(0.1), cm(326));
+  tagItem(welcomeMat, '玄關亞麻滾邊編織迎賓地墊', '88 × 58 cm｜天然黃麻編織與亞麻布包邊');
+  plinthGroup.add(welcomeBorder, welcomeMat);
+
+  // SE Bedroom minimalist white baseboard along West & North inner walls
   const seBaseW = new THREE.Mesh(new THREE.BoxGeometry(cm(1.2), cm(8), cm(128)), mats.pureMatteWhite);
   seBaseW.position.set(cm(556.6), cm(4), cm(631));
   interiorArchGroup.add(seBaseW);
 
-  // Wall Botanical Artworks (Interior walls)
+  // Vintage Porcelain & Brass Toggle Light Switches + Wall Receptacles
+  const switchPlacements = [
+    [104, 122, 269.4, 0, 'switch', 2],     // Foyer / Guest Bath switch
+    [522, 122, 269.4, 0, 'switch', 3],     // Living / Dining chandelier switch
+    [405, 122, 556.6, Math.PI, 'switch', 2], // South corridor switch
+    [746, 122, 567.4, 0, 'switch', 2],     // SE Study room switch
+    [594, 68, 258.6, Math.PI, 'outlet', 1], // Master bedside outlet
+    [775, 62, 258.6, Math.PI, 'outlet', 1], // Master vanity outlet
+  ];
+  for (const [sx, sy, sz, rotY, sType, gangs] of switchPlacements) {
+    const sw = createWallSwitchPanel(mats, sType, gangs);
+    sw.position.set(cm(sx), cm(sy), cm(sz));
+    sw.rotation.y = rotY;
+    interiorArchGroup.add(sw);
+  }
+
+  // Brass & Rubber Floor Doorstops behind Hinged Interior Doors
+  for (const [dx, dz] of [[182, 198], [508, 190], [386, 636]]) {
+    const ds = createFloorDoorstop(mats);
+    ds.position.set(cm(dx), 0, cm(dz));
+    plinthGroup.add(ds);
+  }
+
+  // Wall Botanical Artworks (Interior walls + Foyer North wall)
   const mArt0 = createFramedArt(cm(38), cm(48), mats.art0, mats);
   mArt0.rotation.y = Math.PI;
   mArt0.position.set(cm(626), cm(174), cm(257.5));
@@ -275,6 +330,9 @@ export function buildCountryResidence(mats, sectionClipPlane) {
   const lArt2 = createFramedArt(cm(46), cm(58), mats.art2, mats);
   lArt2.rotation.y = Math.PI;
   lArt2.position.set(cm(606), cm(166), cm(555.5));
+  const fArt = createFramedArt(cm(40), cm(50), mats.art3 || mats.art1, mats);
+  fArt.position.set(cm(62), cm(168), cm(266.5));
+  facades.N.group.add(fArt);
   interiorArchGroup.add(mArt0, mArt1, mArt2, lArt1, lArt2);
 
   // ---------------------------------------------------------------------------
@@ -449,7 +507,7 @@ export function buildCountryResidence(mats, sectionClipPlane) {
   );
 
   // ---------------------------------------------------------------------------
-  // 6. Ceiling Group (Auto-enabled inside rooms & in First-Person Walk!)
+  // 6. Ceiling Group (Coffered Beams + Carved Medallions + Recessed Downlights + Linear AC Vents)
   // ---------------------------------------------------------------------------
   const ceilingGroup = new THREE.Group();
   const mainCeiling = new THREE.Mesh(
@@ -458,11 +516,46 @@ export function buildCountryResidence(mats, sectionClipPlane) {
   );
   mainCeiling.position.set(cm(430), WALL_FULL_H + cm(3), cm(410));
   ceilingGroup.add(mainCeiling);
+
   for (const bx of [cm(345), cm(495), cm(655)]) {
     const beam = new THREE.Mesh(new THREE.BoxGeometry(cm(10), cm(11), cm(286)), mats.whiteTrim);
     beam.position.set(bx, WALL_FULL_H - cm(5.5), cm(413));
-    ceilingGroup.add(beam);
+    const beamCrown = new THREE.Mesh(new THREE.BoxGeometry(cm(13.5), cm(2.5), cm(286)), mats.whiteTrim);
+    beamCrown.position.set(bx, WALL_FULL_H - cm(1.25), cm(413));
+    ceilingGroup.add(beam, beamCrown);
   }
+
+  // Carved Plaster Ceiling Medallions above Dining Chandelier & Kitchen Island Pendant
+  for (const [mx, mz, mr] of [[578, 414, 24], [248, 452.5, 17]]) {
+    const medOuter = new THREE.Mesh(new THREE.CylinderGeometry(cm(mr), cm(mr * 0.92), cm(1.8), 32), mats.whiteTrim);
+    medOuter.position.set(cm(mx), WALL_FULL_H - cm(0.9), cm(mz));
+    const medRing = new THREE.Mesh(new THREE.TorusGeometry(cm(mr * 0.68), cm(0.8), 10, 28), mats.whiteTrim);
+    medRing.rotation.x = Math.PI / 2;
+    medRing.position.set(cm(mx), WALL_FULL_H - cm(1.8), cm(mz));
+    ceilingGroup.add(medOuter, medRing);
+  }
+
+  // Anti-Glare Recessed Architectural Downlights across Rooms
+  for (const [lx, lz] of [
+    [115, 330], [135, 515], [415, 340], [415, 490],
+    [675, 140], [415, 685], [705, 675], [345, 165],
+  ]) {
+    const bezel = new THREE.Mesh(new THREE.CylinderGeometry(cm(4.8), cm(4.8), cm(1.0), 20), mats.whiteTrim);
+    bezel.position.set(cm(lx), WALL_FULL_H - cm(0.5), cm(lz));
+    const lens = new THREE.Mesh(new THREE.CylinderGeometry(cm(3.2), cm(3.2), cm(1.2), 18), mats.warmBulbEmissive);
+    lens.position.set(cm(lx), WALL_FULL_H - cm(0.65), cm(lz));
+    ceilingGroup.add(bezel, lens);
+  }
+
+  // Concealed Linear AC Slot Diffusers
+  for (const [vx, vz, vLen] of [[585, 282, 140], [670, 30, 120]]) {
+    const slotHousing = new THREE.Mesh(new THREE.BoxGeometry(cm(vLen), cm(1.2), cm(7.5)), mats.whiteTrim);
+    slotHousing.position.set(cm(vx), WALL_FULL_H - cm(0.6), cm(vz));
+    const slotGap = new THREE.Mesh(new THREE.BoxGeometry(cm(vLen - 6), cm(1.4), cm(2.2)), mats.castIronDark);
+    slotGap.position.set(cm(vx), WALL_FULL_H - cm(0.7), cm(vz));
+    ceilingGroup.add(slotHousing, slotGap);
+  }
+
   ceilingGroup.visible = false;
   root.add(ceilingGroup);
 

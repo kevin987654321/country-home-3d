@@ -295,6 +295,7 @@ function updateWallVisibility(dt) {
         fac.group.visible = true;
         const isSolid = eased >= 0.995;
         for (const entry of fac.matEntries) {
+          const prevTrans = entry.mat.transparent;
           if (isSolid) {
             entry.mat.transparent = entry.wasTransparent;
             entry.mat.opacity = entry.baseOpacity;
@@ -304,7 +305,9 @@ function updateWallVisibility(dt) {
             entry.mat.opacity = entry.baseOpacity * eased;
             entry.mat.depthWrite = eased > 0.72 && !entry.wasTransparent;
           }
-          entry.mat.needsUpdate = true;
+          if (entry.mat.transparent !== prevTrans) {
+            entry.mat.needsUpdate = true;
+          }
         }
       }
     }
@@ -332,67 +335,67 @@ const ROOM_PRESETS = {
     pos: [cm(450), cm(910), cm(1160)],
     target: [cm(435), cm(85), cm(420)],
     fov: 42,
-    desc: '全室鳥瞰視角｜3 房 2 廳 2 衛 1 廚＋工作陽台，嚴格依照平面圖尺寸（1 cm 精度）與開門方向建模。',
+    desc: '全室鳥瞰視角｜3 房 2 廳 2 衛 1 廚＋工作陽台，嚴格依照平面圖尺寸（1 cm 精度）與開門方向極精細建模。',
   },
   seDesign: {
     pos: [cm(596), cm(128), cm(646)],
     target: [cm(792), cm(114), cm(734)],
     fov: 58,
-    desc: '右下角房間（1:1 設計圖視角）｜隱藏窗簾盒與蛇形落地簾、深窗龕雙扇純白氣密窗、C1 流線內圓弧轉角書桌、三層暖光懸浮書架（含斜靠書列與 U 型雕塑花器）及純白五爪輪扶手椅。',
+    desc: '右下角房間（1:1 設計圖視角）｜隱藏軌道窗簾盒與蛇形落地簾、雙層中空氣密窗、C1 流線內圓弧書桌、三層暖光懸浮書架（精裝書殼與 U 型花器）及純白五爪輪扶手椅。',
   },
   bedSE: {
-    pos: [cm(625), cm(255), cm(475)],
-    target: [cm(712), cm(85), cm(708)],
+    pos: [cm(985), cm(295), cm(975)],
+    target: [cm(685), cm(88), cm(680)],
     fov: 43,
-    desc: '東南次臥全景｜145 cm 頂天衣櫃＋45 cm 展示櫃＋純白單人床＋右側一體成型內圓弧書桌與懸浮層板書牆。',
+    desc: '東南次臥全景｜145 cm 頂天衣櫃＋45 cm 格柵玻璃藏書櫃＋純白線板單人床＋一體成型內圓弧書桌與懸浮層板書牆。',
   },
   master: {
-    pos: [cm(470), cm(250), cm(355)],
-    target: [cm(655), cm(85), cm(155)],
+    pos: [cm(965), cm(295), cm(-155)],
+    target: [cm(655), cm(88), cm(155)],
     fov: 43,
-    desc: '主臥室套房｜Queen Size 純白企口高背雙人床＋60 × 165 cm 衣櫃與精準 60 × 30 cm 橢圓弧轉角層架＋東側梳妝桌。',
+    desc: '主臥室套房｜Queen Size 三格企口高背雙人床＋60 × 165 cm 抽屜衣櫃與 60 × 30 cm 橢圓弧香氛展示櫃＋雕花壁鏡梳妝桌。',
   },
   living: {
     pos: [cm(340), cm(240), cm(520)],
     target: [cm(645), cm(88), cm(385)],
     fov: 43,
-    desc: '客餐廳核心生活區｜200 × 90 cm 圓角白橡木大餐桌＋五燈古典吊燈＋東北角陽光單椅閱讀角落與星形觀葉盆栽。',
+    desc: '客餐廳核心生活區｜200 × 90 cm 黃銅腳套白橡木大餐桌＋鎖鏈五燈古典吊燈＋東北角九道絎縫圈圈紗主人椅閱讀角落。',
   },
   kitchen: {
-    pos: [cm(415), cm(245), cm(445)],
-    target: [cm(135), cm(100), cm(520)],
-    fov: 43,
-    desc: '開放式鄉村風廚房與吧台｜250 cm 廚具（陶瓷農舍水槽＋雙口爐＋壁爐油煙機）＋85 cm 雙門冰箱＋110 × 95 cm 車枳中島桌。',
+    pos: [cm(405), cm(198), cm(375)],
+    target: [cm(145), cm(96), cm(528)],
+    fov: 45,
+    desc: '開放式鄉村風廚房與吧台｜250 cm 廚具（農舍圍裙水槽＋橋式十字把龍頭＋雙口爐琺瑯鑄鐵鍋＋弧形壁爐油煙機）＋復古雙門冰箱＋指針烤箱＋格柵中島桌。',
   },
   foyer: {
     pos: [cm(145), cm(215), cm(495)],
     target: [cm(295), cm(105), cm(292)],
     fov: 43,
-    desc: '玄關與端景鞋櫃區｜法式八角復古花磚落塵區＋240 × 35 cm 純白百葉鏤空端景鞋櫃（底部懸空照明＋白橡木檯面）。',
+    desc: '玄關與端景鞋櫃區｜法式八角復古花磚與編織迎賓墊＋240 × 35 cm 純白百葉端景鞋櫃（底部懸空鞋履＋擴香鑰匙端景檯面）。',
   },
   bedSW: {
-    pos: [cm(325), cm(260), cm(510)],
-    target: [cm(415), cm(75), cm(715)],
+    pos: [cm(385), cm(295), cm(1010)],
+    target: [cm(412), cm(86), cm(675)],
     fov: 43,
-    desc: '西南次臥室｜40 cm 門側高櫃＋35 cm 格柵玻璃書櫃＋109 cm 雙門衣櫃＋純白護欄單人床＋94 × 60 cm 書桌。',
+    desc: '西南次臥室｜40 cm 門側高櫃＋35 cm 內建藏書格柵玻璃書櫃＋109 cm 雙門衣櫃＋三面企口護欄單人床＋94 × 60 cm 實木書桌。',
   },
   masterBath: {
-    pos: [cm(465), cm(295), cm(295)],
-    target: [cm(338), cm(68), cm(125)],
+    pos: [cm(352), cm(295), cm(-165)],
+    target: [cm(342), cm(78), cm(145)],
     fov: 43,
-    desc: '主臥專屬衛浴｜149 × 75 cm 企口裙邊嵌入式浴缸＋白橡木泡澡托盤＋卡拉拉六角磚＋橢圓下嵌盆浴櫃與圓拱銅鏡。',
+    desc: '主臥專屬衛浴｜149 × 75 cm 凸芯線板嵌入式浴缸（人體工學斜靠背＋白橡木泡澡托盤）＋真開孔石紋下嵌盆浴櫃＋一體式鏤空馬桶。',
   },
   guestBath: {
-    pos: [cm(145), cm(310), cm(330)],
-    target: [cm(195), cm(78), cm(135)],
+    pos: [cm(172), cm(295), cm(-165)],
+    target: [cm(188), cm(82), cm(148)],
     fov: 43,
-    desc: '客用乾濕分離衛浴｜無框清玻淋浴間（洩水石材地面＋復古銅金花灑）＋獨立管道間＋純白鄉村風浴櫃。',
+    desc: '客用乾濕分離衛浴｜無框清玻淋浴間（線性落水頭＋外露銅金頂噴花灑與軟管蓮蓬頭）＋真開孔石紋浴櫃與壁燈。',
   },
   balcony: {
-    pos: [cm(135), cm(295), cm(960)],
-    target: [cm(135), cm(75), cm(725)],
+    pos: [cm(135), cm(275), cm(995)],
+    target: [cm(135), cm(82), cm(735)],
     fov: 43,
-    desc: '西南工作陽台與外牆細部｜防滑復古地磚＋洗脫烘衣塔＋陶瓷洗滌槽＋南向女兒牆外雙台分離式冷氣室外機。',
+    desc: '西南工作陽台與外牆細部｜不鏽鋼滾筒數位洗脫烘衣塔＋鏤空搓衣板陶瓷洗衣槽＋晾衣桿＋女兒牆外雙台三葉風扇冷氣室外機。',
   },
 };
 
@@ -424,6 +427,23 @@ function flyToPreset(key) {
 document.querySelectorAll('.room-pill').forEach((btn) => {
   btn.addEventListener('click', () => flyToPreset(btn.dataset.room));
 });
+
+// Instant jump helper for automated visual inspection without waiting for camera tween
+window.__jumpRoomInstant = (key) => {
+  const p = ROOM_PRESETS[key];
+  if (!p) return;
+  if (viewMode !== 'orbit') setViewMode('orbit');
+  camTween = null;
+  perspCam.position.set(...p.pos);
+  controls.target.set(...p.target);
+  perspCam.fov = p.fov || 43;
+  perspCam.updateProjectionMatrix();
+  controls.update();
+  zoneDescEl.textContent = p.desc;
+  updateWallVisibility(2.0);
+  updateWallVisibility(2.0);
+  renderer.render(scene, activeCamera);
+};
 
 // =============================================================================
 // 7. View Mode Switching: 3D Orbit / Top-Down Ortho / First-Person Walk
@@ -857,8 +877,10 @@ window.addEventListener('resize', () => {
 
 const clock = new THREE.Clock();
 
+const isPausedQA = urlParams.get('paused') === '1';
+
 function animate() {
-  requestAnimationFrame(animate);
+  if (!isPausedQA) requestAnimationFrame(animate);
   const dt = Math.min(clock.getDelta(), 0.05);
 
   if (camTween) {
